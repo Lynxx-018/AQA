@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "f673b557-c96d-4ca0-b1b1-160fc68d4d87",
+    "_postman_id": "08ffe391-b7ce-4bcb-8f00-ee83f01ff6ce",
     "name": "Postman Echo",
     "description": "Postman Echo is a service you can use to test your REST clients and make sample API calls. It provides endpoints for `GET`, `POST`, `PUT`, various auth mechanisms and other utility endpoints.\n\nThe documentation for the endpoints as well as example responses can be found at [https://postman-echo.com](https://postman-echo.com/?source=echo-collection-app-onboarding)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "52817350",
-    "_collection_link": "https://go.postman.co/collection/52817350-f673b557-c96d-4ca0-b1b1-160fc68d4d87?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/52817350-08ffe391-b7ce-4bcb-8f00-ee83f01ff6ce?source=collection_link"
   },
   "item": [
     {
@@ -18,19 +18,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Статус ответа 200\", function () {",
+                  "pm.test(\"response is ok\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"В ответе есть поле url и оно правильное\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('url');",
-                  "    pm.expect(jsonData.url).to.equal('https://postman-echo.com/get');",
+                  "pm.test(\"response body has json with request queries\", function () {",
+                  "    pm.response.to.have.jsonBody('args.foo1', 'bar1')",
+                  "        .and.have.jsonBody('args.foo2', 'bar2');",
                   "});"
                 ],
                 "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "packages": {}
               }
             }
           ],
@@ -44,7 +42,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://postman-echo.com/get",
+              "raw": "https://postman-echo.com/get?foo1=bar1&foo2=bar2",
               "protocol": "https",
               "host": [
                 "postman-echo",
@@ -52,6 +50,18 @@
               ],
               "path": [
                 "get"
+              ],
+              "query": [
+                {
+                  "key": "foo1",
+                  "value": "bar1",
+                  "type": "text"
+                },
+                {
+                  "key": "foo2",
+                  "value": "bar2",
+                  "type": "text"
+                }
               ]
             },
             "description": "The HTTP `GET` request method is meant to retrieve data from a server. The data  \nis identified by a unique URI (Uniform Resource Identifier).\n\nA `GET` request can pass parameters to the server using \"Query String  \nParameters\". For example, in the following request,\n\n> [http://example.com/hi/there?hand=wave](http://example.com/hi/there?hand=wave) \n  \n\nThe parameter \"hand\" has the value \"wave\".\n\nThis endpoint echoes the HTTP headers, request parameters and the complete  \nURI requested."
@@ -137,18 +147,24 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "",
                   "pm.test(\"Status code is 200\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Проверяем, что ответ содержит отправленный JSON\", function () {",
+                  "pm.test(\"Response body contains sent data\", function () {",
                   "    const jsonData = pm.response.json();",
-                  "    // Мы отправили {\"message\": \"Hello, World!\"}, и Echo вернет это внутри поля 'json'",
-                  "    pm.expect(jsonData).to.have.property('json');",
-                  "    pm.expect(jsonData.json).to.deep.equal({",
-                  "        \"message\": \"Hello, World!\"",
+                  "    ",
+                  "    // Postman Echo возвращает отправленные данные в поле \"json\"",
+                  "    pm.expect(jsonData.json).to.eql({",
+                  "        \"foo1\": \"bar1\",",
+                  "        \"foo2\": \"bar2\"",
                   "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Data fields match expected values\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.json.foo1).to.eql(\"bar1\");",
+                  "    pm.expect(jsonData.json.foo2).to.eql(\"bar2\");",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -173,10 +189,10 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"message\": \"Hello, World!\"\n}",
+              "raw": "{\n    \"foo1\": \"bar1\",\n    \"foo2\": \"bar2\"\n}",
               "options": {
                 "raw": {
-                  "language": "javascript"
+                  "language": "json"
                 }
               }
             },
@@ -201,25 +217,17 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Статус ответа 200\", function () {",
+                  "pm.test(\"response is ok\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Ответ содержит отправленные данные формы\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    ",
-                  "    pm.expect(jsonData).to.have.property('form');",
-                  "    ",
-                  "    pm.expect(jsonData.form).to.deep.equal({",
-                  "        \"username\": \"Anna\",",
-                  "        \"password\": \"123456\"",
-                  "    });",
+                  "pm.test(\"response body has json with form data\", function () {",
+                  "    pm.response.to.have.jsonBody('form.foo1', 'bar1')",
+                  "        .and.have.jsonBody('form.foo2', 'bar2');",
                   "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                ]
               }
             }
           ],
@@ -230,13 +238,13 @@
               "mode": "urlencoded",
               "urlencoded": [
                 {
-                  "key": "username",
-                  "value": "Anna",
+                  "key": "foo1",
+                  "value": "bar1",
                   "type": "text"
                 },
                 {
-                  "key": "password",
-                  "value": "123456",
+                  "key": "foo2",
+                  "value": "bar2",
                   "type": "text"
                 }
               ]
@@ -331,22 +339,17 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Статус ответа 200\", function () {",
+                  "pm.test(\"response is ok\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Ответ содержит наш JSON\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('json');",
-                  "    pm.expect(jsonData.json).to.deep.equal({",
-                  "        \"name\": \"test\"",
-                  "    });",
+                  "pm.test(\"response body has json with form data\", function () {",
+                  "    pm.response.to.have.jsonBody('data', ",
+                  "        'This is expected to be sent back as part of response body.');",
                   "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                ]
               }
             }
           ],
@@ -355,12 +358,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"test\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "javascript"
-                }
-              }
+              "raw": "This is expected to be sent back as part of response body."
             },
             "url": {
               "raw": "https://postman-echo.com/put",
@@ -383,22 +381,17 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Статус ответа 200\", function () {",
+                  "pm.test(\"response is ok\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Ответ содержит наш JSON\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('json');",
-                  "    pm.expect(jsonData.json).to.deep.equal({",
-                  "        \"status\": \"updated\"",
-                  "    });",
+                  "pm.test(\"response body has json with form data\", function () {",
+                  "    pm.response.to.have.jsonBody('data', ",
+                  "        'This is expected to be sent back as part of response body.');",
                   "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                ]
               }
             }
           ],
@@ -407,12 +400,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"updated\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "javascript"
-                }
-              }
+              "raw": "This is expected to be sent back as part of response body."
             },
             "url": {
               "raw": "https://postman-echo.com/patch",
@@ -435,20 +423,17 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Статус ответа 200\", function () {",
+                  "pm.test(\"response is ok\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Ответ содержит отправленный параметр id\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('args');",
-                  "    pm.expect(jsonData.args.id).to.equal('5');",
+                  "pm.test(\"response body has json with form data\", function () {",
+                  "    pm.response.to.have.jsonBody('data', ",
+                  "        'This is expected to be sent back as part of response body.');",
                   "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                ]
               }
             }
           ],
@@ -456,11 +441,11 @@
             "method": "DELETE",
             "header": [],
             "body": {
-              "mode": "file",
-              "file": {}
+              "mode": "raw",
+              "raw": "This is expected to be sent back as part of response body."
             },
             "url": {
-              "raw": "https://postman-echo.com/delete?id=5",
+              "raw": "https://postman-echo.com/delete",
               "protocol": "https",
               "host": [
                 "postman-echo",
@@ -468,13 +453,6 @@
               ],
               "path": [
                 "delete"
-              ],
-              "query": [
-                {
-                  "key": "id",
-                  "value": "5",
-                  "type": "text"
-                }
               ]
             },
             "description": "The HTTP `DELETE` method is used to delete resources on a server. The exact\nuse of `DELETE` requests depends on the server implementation. In general, \n`DELETE` requests support both, Query String parameters as well as a Request \nBody.\n\nThis endpoint accepts an HTTP `DELETE` request and provides debug information\nsuch as the HTTP headers, Query String arguments, and the Request Body."
@@ -3876,15 +3854,15 @@
   ],
   "variable": [
     {
-      "key": "basic_auth_0dfm",
-      "secret": true
-    },
-    {
       "key": "auth_secret_12f3",
       "secret": true
     },
     {
       "key": "auth_secret_1dvi",
+      "secret": true
+    },
+    {
+      "key": "basic_auth_0dfm",
       "secret": true
     }
   ]
